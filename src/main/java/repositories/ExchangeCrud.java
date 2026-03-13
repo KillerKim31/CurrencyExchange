@@ -6,7 +6,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import models.Currency;
 import models.Exchange;
 
 public class ExchangeCrud implements CrudRepository<Exchange> {
@@ -66,10 +65,11 @@ public class ExchangeCrud implements CrudRepository<Exchange> {
     }
 
     @Override
-    public void save(Exchange entity) {
+    public Long save(Exchange entity) {
         String sqlCommand = """
                             INSERT INTO public.Exchange (baseCurrencyId, targetCurrencyId, rate)
                             VALUES (?, ?, ?)
+                            RETURNING id;
                             """;
         try (Connection connection = Utils.ConnectionManager.open();
              PreparedStatement statement = connection.prepareStatement(sqlCommand)) {
@@ -78,6 +78,14 @@ public class ExchangeCrud implements CrudRepository<Exchange> {
             statement.setLong(2, entity.getTargetCurrencyId());
             statement.setDouble(3, entity.getRate());
             statement.execute();
+
+            var res = statement.getResultSet();
+            if (res.next()) {
+                return res.getLong(1);
+            }
+            else {
+                return -1L;
+            }
 
         } catch (SQLException e) {
             throw new RuntimeException(e);

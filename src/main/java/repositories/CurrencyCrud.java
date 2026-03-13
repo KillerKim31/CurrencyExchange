@@ -65,10 +65,11 @@ public class CurrencyCrud implements CrudRepository<Currency> {
     }
 
     @Override
-    public void save(Currency entity) {
+    public Long save(Currency entity) {
         String sqlCommand = """
                             INSERT INTO public.Currency (code, fullName, sign)
-                            VALUES ('?', '?', '?')
+                            VALUES (?, ?, ?)
+                            RETURNING id;
                             """;
         try (Connection connection = Utils.ConnectionManager.open();
              PreparedStatement statement = connection.prepareStatement(sqlCommand)) {
@@ -76,8 +77,14 @@ public class CurrencyCrud implements CrudRepository<Currency> {
             statement.setString(1, entity.getCode());
             statement.setString(2, entity.getFullName());
             statement.setString(3, entity.getSign().toString());
-            statement.execute();
-
+            statement.executeQuery();
+            var res = statement.getResultSet();
+            if (res.next()) {
+                return res.getLong(1);
+            }
+            else {
+                return -1L;
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -87,7 +94,7 @@ public class CurrencyCrud implements CrudRepository<Currency> {
     public void update(Currency entity) {
         String sqlCommand = """
                             UPDATE public.Currency
-                            SET code = '?', fullName = '?', sign = '?'
+                            SET code = ?, fullName = ?, sign = ?
                             WHERE id = ?
                             """;
         try (Connection connection = Utils.ConnectionManager.open();

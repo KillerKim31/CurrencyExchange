@@ -52,6 +52,15 @@
         <version>3.3.1</version>
       </plugin>
 
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>15</source>
+          <target>15</target>
+        </configuration>
+      </plugin>
+
       <!-- Source: https://mvnrepository.com/artifact/org.apache.tomcat.maven/tomcat7-maven-plugin -->
       <plugin>
         <groupId>org.apache.tomcat.maven</groupId>
@@ -61,13 +70,6 @@
           <port>8888</port>
           <path></path>
         </configuration>
-      </plugin>
-
-      <!-- Source: https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-compiler-plugin -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.15.0</version>
       </plugin>
 
     </plugins>

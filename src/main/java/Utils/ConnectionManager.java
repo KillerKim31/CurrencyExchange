@@ -1,0 +1,28 @@
+package Utils;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+public final class ConnectionManager {
+
+    // Ключи для получения конфигурационных настроек для подключения к БД
+    private static final String URL_KEY       = "db.url";
+    private static final String USER_NAME_KEY = "db.username";
+    private static final String PASSWORD_KEY  = "db.password";
+
+    public static Connection open() {
+        try {
+            return DriverManager.getConnection(
+                    Utils.PropertiesUtil.get(URL_KEY),
+                    Utils.PropertiesUtil.get(USER_NAME_KEY),
+                    Utils.PropertiesUtil.get(PASSWORD_KEY));
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private ConnectionManager() {
+    }
+
+}

@@ -14,9 +14,9 @@ public final class ConnectionManager {
     public static Connection open() {
         try {
             return DriverManager.getConnection(
-                    Utils.PropertiesUtil.get(URL_KEY),
-                    Utils.PropertiesUtil.get(USER_NAME_KEY),
-                    Utils.PropertiesUtil.get(PASSWORD_KEY));
+                    PropertiesUtil.get(URL_KEY),
+                    PropertiesUtil.get(USER_NAME_KEY),
+                    PropertiesUtil.get(PASSWORD_KEY));
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

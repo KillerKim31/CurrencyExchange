@@ -2,6 +2,7 @@ package repositories;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,11 +25,7 @@ public class CurrencyCrud implements CrudRepository<Currency> {
 
             var vResultSet = statement.getResultSet();
             if (vResultSet.next()) {
-                return new Currency(
-                        vResultSet.getLong("id"),
-                        vResultSet.getString("code"),
-                        vResultSet.getString("fullName"),
-                        vResultSet.getString("sign").charAt(0));
+                return createNewCurrency(vResultSet);
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -126,6 +123,56 @@ public class CurrencyCrud implements CrudRepository<Currency> {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public Currency findByCode(String code) {
+        String sqlCommand = """
+                            SELECT * FROM public.Currency
+                            WHERE code = ?
+                            """;
+        try (Connection connection = Utils.ConnectionManager.open();
+             PreparedStatement statement = connection.prepareStatement(sqlCommand)) {
+
+            statement.setString(1, code);
+            statement.executeQuery();
+
+            var vResultSet = statement.getResultSet();
+            if (vResultSet.next()) {
+                return createNewCurrency(vResultSet);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
+
+    public Currency findByFullName(String fullName) {
+        String sqlCommand = """
+                            SELECT * FROM public.Currency
+                            WHERE fullname = ?
+                            """;
+        try (Connection connection = Utils.ConnectionManager.open();
+             PreparedStatement statement = connection.prepareStatement(sqlCommand)) {
+
+            statement.setString(1, fullName);
+            statement.executeQuery();
+
+            var vResultSet = statement.getResultSet();
+            if (vResultSet.next()) {
+                return createNewCurrency(vResultSet);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
+
+    private Currency createNewCurrency(java.sql.ResultSet resultSet) throws SQLException {
+        return new Currency(
+                        resultSet.getLong("id"),
+                        resultSet.getString("code"),
+                        resultSet.getString("fullName"),
+                        resultSet.getString("sign").charAt(0));
     }
 
 }

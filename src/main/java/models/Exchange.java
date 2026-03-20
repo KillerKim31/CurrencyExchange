@@ -6,23 +6,23 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 public class Exchange {
 
     private Long   id;
-    private Long   baseCurrencyId;
-    private Long   targetCurrencyId;
+    private Currency   baseCurrency;
+    private Currency   targetCurrency;
     private Double rate;
 
     public Exchange() {
     }
 
-    public Exchange(Long baseCurrencyId, Long targetCurrencyId, Double rate) {
-        this.baseCurrencyId   = baseCurrencyId;
-        this.targetCurrencyId = targetCurrencyId;
-        this.rate             = rate;
+    public Exchange(Currency baseCurrency, Currency targetCurrency, Double rate) {
+        this.baseCurrency   = baseCurrency;
+        this.targetCurrency = targetCurrency;
+        this.rate           = rate;
     }
 
-    public Exchange(Long id, Long baseCurrencyId, Long targetCurrencyId, Double rate) {
+    public Exchange(Long id, Currency baseCurrency, Currency targetCurrency, Double rate) {
         this.id               = id;
-        this.baseCurrencyId   = baseCurrencyId;
-        this.targetCurrencyId = targetCurrencyId;
+        this.baseCurrency   = baseCurrency;
+        this.targetCurrency = targetCurrency;
         this.rate             = rate;
     }
 
@@ -35,20 +35,20 @@ public class Exchange {
         this.id = id;
     }
 
-    public Long getBaseCurrencyId() {
-        return baseCurrencyId;
+    public Currency getBaseCurrency() {
+        return baseCurrency;
     }
 
-    public void setBaseCurrencyId(Long baseCurrencyId) {
-        this.baseCurrencyId = baseCurrencyId;
+    public void setBaseCurrencyId(Currency baseCurrencyId) {
+        this.baseCurrency = baseCurrency;
     }
 
-    public Long getTargetCurrencyId() {
-        return targetCurrencyId;
+    public Currency getTargetCurrency() {
+        return targetCurrency;
     }
 
-    public void setTargetCurrencyId(Long targetCurrencyId) {
-        this.targetCurrencyId = targetCurrencyId;
+    public void setTargetCurrencyId(Currency targetCurrencyId) {
+        this.targetCurrency = targetCurrency;
     }
 
     public Double getRate() {

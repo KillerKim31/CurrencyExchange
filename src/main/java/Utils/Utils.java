@@ -2,11 +2,14 @@ package Utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import models.Currency;
+import models.Exchange;
+import repositories.CurrencyCrud;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 
 public class Utils {
 
@@ -46,6 +49,32 @@ public class Utils {
             return false;
         }
         return true;
+    }
+
+    public static boolean isNotValidExchangeJSON(Map<String, Object> jsonObject) {
+
+        String baseCurrencyCode   = jsonObject.get("baseCurrencyCode").toString();
+        String targetCurrencyCode = jsonObject.get("targetCurrencyCode").toString();
+        CurrencyCrud currencyCrud = new CurrencyCrud();
+
+        if (baseCurrencyCode.isEmpty()) {
+            if (currencyCrud.findByCode(baseCurrencyCode) == null)
+                return false;
+        }
+        if (targetCurrencyCode.isEmpty()) {
+            if (currencyCrud.findByCode(targetCurrencyCode) == null)
+                return false;
+        }
+        if (jsonObject.get("rate") != null) {
+            try {
+                Double.parseDouble(jsonObject.get("rate").toString());
+            }
+            catch (Exception e) {
+                return false;
+            }
+        }
+        return true;
+
     }
 
 }

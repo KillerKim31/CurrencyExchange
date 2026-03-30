@@ -2,13 +2,13 @@ package models;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
-@JsonPropertyOrder({ "id", "baseCurrencyId", "targetCurrencyId", "rate" })
+@JsonPropertyOrder({ "id", "baseCurrency", "targetCurrency", "rate" })
 public class Exchange {
 
-    private Long   id;
-    private Currency   baseCurrency;
-    private Currency   targetCurrency;
-    private Double rate;
+    protected Long       id;
+    protected Currency   baseCurrency;
+    protected Currency   targetCurrency;
+    protected Double     rate;
 
     public Exchange() {
     }

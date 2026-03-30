@@ -1,7 +1,6 @@
 package servlets;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import models.Currency;
 import models.Exchange;
 import repositories.CurrencyCrud;
 import repositories.ExchangeCrud;
@@ -63,7 +62,7 @@ public class ExchangeRatesServlet extends HttpServlet  {
         try {
             String requestBody = Utils.Utils.getRequestBodyString(req);
             jsonObject = mapper.readValue(requestBody, HashMap.class);
-            if (!Utils.Utils.isNotValidExchangeJSON(jsonObject)) {
+            if (!Utils.Utils.isValidExchangeJSON(jsonObject)) {
                 generateError(resp, HttpServletResponse.SC_BAD_REQUEST, mapper, ERR_MSG_INCORRECT_DATA);
                 return;
             }

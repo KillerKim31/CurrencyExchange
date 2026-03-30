@@ -55,7 +55,7 @@ public class CurrenciesServlet extends HttpServlet {
         }
 
         // Проверка валидности полей
-        if (!Utils.Utils.isNotValidCurrencyEntry(newEntry)) {
+        if (!Utils.Utils.isValidCurrencyEntry(newEntry)) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             mapper.writeValue(resp.getWriter(), Map.of(
                     "error", "Неверно введены данные. Пример: code = \"USD\", fullName = \"US Dollar\", sign = \"$\""

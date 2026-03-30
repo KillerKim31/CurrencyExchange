@@ -161,6 +161,7 @@ public class ExchangeCrud implements CrudRepository<Exchange> {
 
     }
 
+
     private Exchange createNewExchange(ResultSet resultSet, CurrencyCrud currencyCrud) throws SQLException {
         Long baseCurrencyId   = resultSet.getLong("baseCurrencyid");
         Long targetCurrencyId = resultSet.getLong("targetcurrencyid");

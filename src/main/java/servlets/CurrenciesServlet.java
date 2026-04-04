@@ -1,12 +1,14 @@
 package servlets;
 
+import Exceptions.DatabaseException;
+import Exceptions.DuplicateEntryException;
+import Exceptions.InvalidEntryException;
+import Service.CurrencyService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import models.Currency;
-import repositories.CurrencyCrud;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -14,68 +16,53 @@ import java.util.Map;
 
 
 @WebServlet("/currencies")
-public class CurrenciesServlet extends HttpServlet {
+public class CurrenciesServlet extends BaseServlet {
+
+    private CurrencyService currencyService;
+
+    protected final String ERR_MSG_INCORRECT_ENDPOINT = "Неверно введены данные. Пример: code = \"USD\", fullName = \"US Dollar\", sign = \"$\"";
+    protected final String ERR_DUPLICATE_ENTRY        = "Запись с таким кодом уже существует.";
+    protected final String ERR_MSG_DATABASE           = "Ошибка при взаимодействии с БД.";
+    protected final String ERR_MSG_INNER              = "Внутренняя ошибка сервера.";
+
+    @Override
+    public void init() throws ServletException {
+        super.init();
+        currencyService = new CurrencyService();
+    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        req.setCharacterEncoding("UTF-8");
-        resp.setContentType("application/json;charset=UTF-8");
-        new ObjectMapper().writeValue(resp.getWriter(), new CurrencyCrud().findAll());
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            new ObjectMapper().writeValue(resp.getWriter(), currencyService.getCurrencyList());
+        } catch (DatabaseException e) {
+            generateError(resp, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, mapper, ERR_MSG_DATABASE);
+        } catch (Exception e) {
+            generateError(resp, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, mapper, ERR_MSG_INNER);
+        }
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
-        req.setCharacterEncoding("UTF-8");
-        resp.setContentType("application/json;charset=UTF-8");
-
         ObjectMapper mapper = new ObjectMapper();
-        Currency newEntry;
 
-        // Чтение и десериализация JSON
         try {
-            String requestBody = Utils.Utils.getRequestBodyString(req);
-            newEntry = mapper.readValue(requestBody, Currency.class);
-        } catch (IOException e) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            mapper.writeValue(resp.getWriter(), Map.of(
-                    "error", "Неверно введены данные. Пример: code = \"USD\", fullName = \"US Dollar\", sign = \"$\""
-            ));
-            return;
-        }
+            CurrencyService currencyService = new CurrencyService();
+            Currency newEntry = mapper.readValue(Utils.Utils.getRequestBodyString(req), Currency.class);
+            Long id = currencyService.createCurrency(newEntry);
 
-        // Проверка на дубликат
-        var entryCrud = new CurrencyCrud();
-        if (entryCrud.findByCode(newEntry.getCode()) != null) {
-            resp.setStatus(HttpServletResponse.SC_CONFLICT);
-            mapper.writeValue(resp.getWriter(), Map.of(
-                    "error", "Запись с таким кодом уже существует."
-            ));
-            return;
+            resp.setStatus(HttpServletResponse.SC_CREATED);
+            mapper.writeValue(resp.getWriter(), Map.of("id", id));
+        } catch (InvalidEntryException | IOException e) {
+            generateError(resp, HttpServletResponse.SC_BAD_REQUEST, mapper, ERR_MSG_INCORRECT_ENDPOINT);
+        } catch (DuplicateEntryException e) {
+            generateError(resp, HttpServletResponse.SC_CONFLICT, mapper, ERR_DUPLICATE_ENTRY);
+        } catch (DatabaseException e) {
+            generateError(resp, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, mapper, ERR_MSG_DATABASE);
+        } catch (Exception e) {
+            generateError(resp, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, mapper, ERR_MSG_INNER);
         }
-
-        // Проверка валидности полей
-        if (!Utils.Utils.isValidCurrencyEntry(newEntry)) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            mapper.writeValue(resp.getWriter(), Map.of(
-                    "error", "Неверно введены данные. Пример: code = \"USD\", fullName = \"US Dollar\", sign = \"$\""
-            ));
-            return;
-        }
-
-        // Сохранение в БД
-        Long id = entryCrud.save(newEntry);
-        if (id == null || id <= 0) {
-            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            mapper.writeValue(resp.getWriter(), Map.of(
-                    "error", "Ошибка при добавлении записи в БД."
-            ));
-            return;
-        }
-
-        // Успешное создание записи
-        resp.setStatus(HttpServletResponse.SC_CREATED);
-        mapper.writeValue(resp.getWriter(), Map.of("id", id));
 
     }
 }
